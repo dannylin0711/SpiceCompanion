@@ -172,11 +172,12 @@ class ConnectionController : ConnectionControllerProtocol {
         }
         packetRes = String()
         
+        stopTimer()
+        self.canSendPacket = true
+        
         processPacketQueue()
 //        print(data)
         
-        stopTimer()
-        self.canSendPacket = true
         
         switch self.phase {
         case .unknown:
@@ -192,26 +193,8 @@ class ConnectionController : ConnectionControllerProtocol {
             scannedPatch(data: data)
             break
         case.open:
-            guard let handler = self.packetHandler else {
-                break
-            }
-            handler.handlePacket(data: data)
             break
         }
-    }
-    
-    private var packetHandler: PacketHandler?
-    
-    func setPacketHandler(packetHandler: PacketHandler){
-        self.packetHandler = packetHandler;
-    }
-    
-    func resetPacketHandler(){
-        self.packetHandler = nil
-    }
-    
-    func unsetDataHandler(){
-        self.packetHandler = nil
     }
     
     private var patchScanQueue: [Patch]?
@@ -261,7 +244,7 @@ class ConnectionController : ConnectionControllerProtocol {
     
     private func scanScreens(data: [JSON]){
         
-        
+        self.screens.removeAll()
         self.phase = .scanning
         for screenId in data {
             self.screens.append(screenId.int!)
